@@ -1,7 +1,6 @@
-autoflake==1.4
-black==20.8b1
-flake8==3.9.0
-isort==5.8.0
-mypy==0.812
-pyupgrade==2.11.0
-black-disable-checker==1.0.0
+# Everything in this file should reflect the pre-commit configuration
+# in .pre-commit-config.yaml
+black==21.6b0;python_full_version>="3.6.2"
+flake8==3.9.2
+isort==5.9.1
+mypy==0.910

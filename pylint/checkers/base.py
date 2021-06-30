@@ -20,7 +20,7 @@
 # Copyright (c) 2016 Yannack <yannack@users.noreply.github.com>
 # Copyright (c) 2016 Alex Jurkiewicz <alex@jurkiewi.cz>
 # Copyright (c) 2017, 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
-# Copyright (c) 2017, 2019-2020 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2017, 2019-2021 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017 danields <danields761@gmail.com>
 # Copyright (c) 2017 Jacques Kvam <jwkvam@gmail.com>
 # Copyright (c) 2017 ttenhoeve-aa <ttenhoeve@appannie.com>
@@ -52,7 +52,10 @@
 # Copyright (c) 2020 Gabriel R Sezefredo <g@briel.dev>
 # Copyright (c) 2020 Benny <benny.mueller91@gmail.com>
 # Copyright (c) 2020 Anubhav <35621759+anubh-v@users.noreply.github.com>
+# Copyright (c) 2021 Lorena B <46202743+lorena-b@users.noreply.github.com>
 # Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 David Liu <david@cs.toronto.edu>
+# Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
 # Copyright (c) 2021 Or Bahari <orbahari@mail.tau.ac.il>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -1117,7 +1120,7 @@ class BasicChecker(_BasicChecker):
             astroid.BoundMethod,
             astroid.Module,
         )
-        structs = (astroid.Dict, astroid.Tuple, astroid.Set)
+        structs = (astroid.Dict, astroid.Tuple, astroid.Set, astroid.List)
 
         # These nodes are excepted, since they are not constant
         # values, requiring a computation to happen.
@@ -1204,9 +1207,7 @@ class BasicChecker(_BasicChecker):
         # warn W0106 if we have any underlying function call (we can't predict
         # side effects), else pointless-statement
         if (
-            isinstance(
-                expr, (astroid.Yield, astroid.Await, astroid.Ellipsis, astroid.Call)
-            )
+            isinstance(expr, (astroid.Yield, astroid.Await, astroid.Call))
             or (
                 isinstance(node.parent, astroid.TryExcept)
                 and node.parent.body == [node]
@@ -1501,7 +1502,7 @@ class BasicChecker(_BasicChecker):
             _parent = _node.parent
 
     def _check_reversed(self, node):
-        """ check that the argument to `reversed` is a sequence """
+        """check that the argument to `reversed` is a sequence"""
         try:
             argument = utils.safe_infer(utils.get_argument_from_call(node, position=0))
         except utils.NoSuchArgumentError:
@@ -1986,8 +1987,6 @@ class NameChecker(_BasicChecker):
                     utils.safe_infer(assign_type.value), astroid.Const
                 ):
                     self._check_name("const", node.name, node)
-            elif isinstance(assign_type, astroid.ExceptHandler):
-                self._check_name("variable", node.name, node)
             elif isinstance(
                 assign_type, astroid.AnnAssign
             ) and utils.is_assign_name_annotated_with(node, "Final"):
@@ -2049,9 +2048,7 @@ class NameChecker(_BasicChecker):
 
     def _check_name(self, node_type, name, node, confidence=interfaces.HIGH):
         """check for a name using the type's regexp"""
-
         non_ascii_match = self._non_ascii_rgx_compiled.match(name)
-
         if non_ascii_match is not None:
             self._raise_name_warning(
                 node, node_type, name, confidence, warning="non-ascii-name"
@@ -2064,10 +2061,6 @@ class NameChecker(_BasicChecker):
                     return True
             return False
 
-        if utils.is_inside_except(node):
-            clobbering, _ = utils.clobber_in_except(node)
-            if clobbering:
-                return
         if self._name_allowed_by_regex(name=name):
             return
         if self._name_disallowed_by_regex(name=name):

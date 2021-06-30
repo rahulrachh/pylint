@@ -52,7 +52,10 @@ class LintModuleTest:
 
     def setUp(self):
         if self._should_be_skipped_due_to_version():
-            pytest.skip("Test cannot run with Python %s." % sys.version.split(" ")[0])
+            pytest.skip(
+                "Test cannot run with Python %s."
+                % sys.version.split(" ", maxsplit=1)[0]
+            )
         missing = []
         for requirement in self._test_file.options["requires"]:
             try:
@@ -72,6 +75,9 @@ class LintModuleTest:
             platforms = [p.strip() for p in excluded_platforms.split(",")]
             if sys.platform.lower() in platforms:
                 pytest.skip("Test cannot run on platform %r" % sys.platform)
+
+    def runTest(self):
+        self._runTest()
 
     def _should_be_skipped_due_to_version(self):
         return (
@@ -132,12 +138,14 @@ class LintModuleTest:
                     unexpected[key] = -value
         return missing, unexpected
 
+    # pylint: disable=consider-using-with
     def _open_expected_file(self):
         try:
             return open(self._test_file.expected_output)
         except FileNotFoundError:
             return StringIO("")
 
+    # pylint: disable=consider-using-with
     def _open_source_file(self):
         if self._test_file.base == "invalid_encoded_data":
             return open(self._test_file.source)
@@ -170,6 +178,7 @@ class LintModuleTest:
         return received_msgs, received_output_lines
 
     def _runTest(self):
+        __tracebackhide__ = True  # pylint: disable=unused-variable
         modules_to_check = [self._test_file.source]
         self._linter.check(modules_to_check)
         expected_messages, expected_output = self._get_expected()

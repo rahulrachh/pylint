@@ -1,3 +1,4 @@
+# Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -16,7 +17,7 @@ class ConfusingConsecutiveElifChecker(BaseChecker):
 
     __implements__ = IAstroidChecker
 
-    name = "confusing-elif-checker"
+    name = "confusing_elif"
     priority = -1
     msgs = {
         "R5601": (

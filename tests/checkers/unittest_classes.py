@@ -8,6 +8,7 @@
 # Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019-2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2021 yushao2 <36848472+yushao2@users.noreply.github.com>
 # Copyright (c) 2021 tiagohonorato <61059243+tiagohonorato@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -148,10 +149,22 @@ class TestVariablesChecker(CheckerTestCase):
         attribute_in_fake_1 = list(assign_attribute_in_fake_1.assigned_stmts())[-1]
         assign_attribute_in_fake_2 = classdef.instance_attr("__private")[-1]
         attribute_in_fake_2 = list(assign_attribute_in_fake_2.assigned_stmts())[-1]
+        unused_private_attr_1 = classdef.instance_attr("__private")[0]
+        unused_private_attr_2 = classdef.instance_attr("__private")[1]
         with self.assertAddsMessages(
             Message("protected-access", node=attribute_in_eq, args="_protected"),
             Message("protected-access", node=attribute_in_fake_1, args="_protected"),
             Message("protected-access", node=attribute_in_fake_2, args="__private"),
+            Message(
+                "unused-private-member",
+                node=unused_private_attr_1,
+                args=("Protected", "__private"),
+            ),
+            Message(
+                "unused-private-member",
+                node=unused_private_attr_2,
+                args=("Protected", "__private"),
+            ),
         ):
             self.walk(node.root())
 
@@ -183,9 +196,21 @@ class TestVariablesChecker(CheckerTestCase):
         attribute_in_fake_1 = list(assign_attribute_in_fake_1.assigned_stmts())[-1]
         assign_attribute_in_fake_2 = classdef.instance_attr("__private")[-1]
         attribute_in_fake_2 = list(assign_attribute_in_fake_2.assigned_stmts())[-1]
+        unused_private_attr_1 = classdef.instance_attr("__private")[0]
+        unused_private_attr_2 = classdef.instance_attr("__private")[1]
         with self.assertAddsMessages(
             Message("protected-access", node=attribute_in_fake_1, args="_protected"),
             Message("protected-access", node=attribute_in_fake_2, args="__private"),
+            Message(
+                "unused-private-member",
+                node=unused_private_attr_1,
+                args=("Protected", "__private"),
+            ),
+            Message(
+                "unused-private-member",
+                node=unused_private_attr_2,
+                args=("Protected", "__private"),
+            ),
         ):
             self.walk(node.root())
 

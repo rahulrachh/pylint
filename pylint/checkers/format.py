@@ -36,6 +36,7 @@
 # Copyright (c) 2019 Nick Drozd <nicholasdrozd@gmail.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
 # Copyright (c) 2020 Raphael Gaschignard <raphael@rtpg.co>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
@@ -442,7 +443,7 @@ class FormatChecker(BaseTokenChecker):
 
     def _prepare_token_dispatcher(self):
         dispatch = {}
-        for tokens, handler in [(_KEYWORD_TOKENS, self._check_keyword_parentheses)]:
+        for tokens, handler in ((_KEYWORD_TOKENS, self._check_keyword_parentheses),):
             for token in tokens:
                 dispatch[token] = handler
         return dispatch
@@ -631,9 +632,10 @@ class FormatChecker(BaseTokenChecker):
             return
 
         # Function overloads that use ``Ellipsis`` are exempted.
-        if isinstance(node, nodes.Expr) and (
-            isinstance(node.value, nodes.Ellipsis)
-            or (isinstance(node.value, nodes.Const) and node.value.value is Ellipsis)
+        if (
+            isinstance(node, nodes.Expr)
+            and isinstance(node.value, nodes.Const)
+            and node.value.value is Ellipsis
         ):
             frame = node.frame()
             if is_overload_stub(frame) or is_protocol_class(node_frame_class(frame)):
@@ -795,5 +797,5 @@ class FormatChecker(BaseTokenChecker):
 
 
 def register(linter):
-    """required method to auto register this checker """
+    """required method to auto register this checker"""
     linter.register_checker(FormatChecker(linter))
